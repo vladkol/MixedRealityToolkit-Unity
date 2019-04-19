@@ -11,10 +11,10 @@ namespace Microsoft.SignalNow.Client
 
         string authentcationServiceName { get; }
 
-        string userName { get; set; }
-        string teamName { get; set; }
-        string companyName { get; set; }
-        string deviceId { get; set; }
+        string userName { get; }
+        string teamName { get; }
+        string companyName { get; }
+        string deviceId { get; }
         string authenticationToken { get; }
     }
 }

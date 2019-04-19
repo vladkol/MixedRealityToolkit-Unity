@@ -24,7 +24,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
         public bool cacheAuthenticationTokens = true;
 
         public string authenticationToken { get; private set; }
-        public string userName { get; private set; }
+        public string userName { get { return account != null ? account.Username : string.Empty; } }
         public string userId { get; private set; }
         public IPublicClientApplication identityClient
         {
@@ -34,6 +34,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             }
         }
         public IAccount account { get; private set; }
+        public string TenantId { get { return account != null ? account.HomeAccountId.TenantId : string.Empty; } }
 
         public event SignedInHandler SignedIn;
         public event SignedOutHandler SignedOut;
@@ -83,7 +84,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             {
                 userId = string.Empty;
                 authenticationToken = string.Empty;
-                userName = string.Empty;
 
                 await client.RemoveAsync(account);
                 account = null;
@@ -151,7 +151,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             if (!needAuth)
             {
                 userId = userIdInProcess;
-                userName = account.Username;
                 authenticationToken = authResult.AccessToken;
                 justSignedIn = true;
             }
@@ -202,7 +201,6 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
                 {
                     account = authResult.Account;
                     userId = account.HomeAccountId.Identifier;
-                    userName = account.Username;
                     authenticationToken = authResult.AccessToken;
 
                     if (cache != null)

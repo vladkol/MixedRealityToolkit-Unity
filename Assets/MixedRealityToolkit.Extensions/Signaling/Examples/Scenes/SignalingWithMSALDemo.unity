@@ -708,6 +708,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 382809199}
+  - component: {fileID: 382809200}
   m_Layer: 0
   m_Name: SignalNow Messenger
   m_TagString: Untagged
@@ -732,6 +733,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &382809200
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 382809198}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: daa7e139db19fe34c88ea3faa0ee29b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  signalManager: {fileID: 2012829723}
+  textFieldMessageIn: {fileID: 268499048}
+  textFieldMessageOut: {fileID: 1846417758}
 --- !u!1 &602475640
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,7 +887,7 @@ MonoBehaviour:
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
   m_isInputParsingRequired: 0
-  m_inputSource: 3
+  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -1257,7 +1273,7 @@ MonoBehaviour:
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
   m_isInputParsingRequired: 0
-  m_inputSource: 3
+  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -1779,6 +1795,21 @@ PrefabInstance:
     - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9,
         type: 3}
       propertyPath: VoiceCommand
+      value: Send
+      objectReference: {fileID: 0}
+    - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9,
+        type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9,
+        type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 382809200}
+    - target: {fileID: 7440800412470431853, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9,
+        type: 3}
+      propertyPath: OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: Send
       objectReference: {fileID: 0}
     - target: {fileID: 937783104, guid: 45fd0ad89d6d17b4fbe68eb48dbe9de9, type: 3}
@@ -2405,7 +2436,7 @@ MonoBehaviour:
   m_isVolumetricText: 0
   m_spriteAnimator: {fileID: 0}
   m_isInputParsingRequired: 0
-  m_inputSource: 3
+  m_inputSource: 0
   m_hasFontAssetChanged: 0
   m_subTextObjects:
   - {fileID: 0}
@@ -2918,6 +2949,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2012829722}
+  - component: {fileID: 2012829723}
+  - component: {fileID: 2012829724}
   m_Layer: 0
   m_Name: SignalNowManager
   m_TagString: Untagged
@@ -2939,6 +2972,32 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2012829723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2012829721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9e46866a45c6c441a1d26db9367f06c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  signalServer: 
+--- !u!114 &2012829724
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2012829721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9c472cf685123446ad178d673a77bde, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  authenticator: {fileID: 636655980939927733}
 --- !u!1 &2022040954
 GameObject:
   m_ObjectHideFlags: 0
@@ -3780,6 +3839,18 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0.043}
   m_SizeDelta: {x: 1025, y: 648}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &636655980939927733 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 3277131162090358019, guid: 5e10d33a6aefc884bafff01eba796ab1,
+    type: 3}
+  m_PrefabInstance: {fileID: 2715510390653920694}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb171915db5ad454c8590052ebeb6cd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &636655980939927735 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3277131162090358017, guid: 5e10d33a6aefc884bafff01eba796ab1,
