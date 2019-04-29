@@ -6,8 +6,9 @@ namespace Microsoft.SignalNow.Client
 {
     public interface ISignalNowAuthenticator
     {
-        event Action<string> Authenticated;
-        event Action<string> AuthenticationFailed;
+        event Action<object> Authenticated;
+        event Action<object> AuthenticationFailed;
+        event Action<object> SignedOut;
 
         string authentcationServiceName { get; }
 
