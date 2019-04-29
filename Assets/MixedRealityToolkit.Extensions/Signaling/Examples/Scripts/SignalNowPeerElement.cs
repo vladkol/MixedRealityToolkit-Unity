@@ -19,6 +19,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
             {
                 var t = messenger.signalManager.signalNowClient.SendMessage(peer.UserId, false, "MESSAGE",
                     messenger.textFieldMessageOut.text, true);
+                messenger.textFieldMessageOut.text = string.Empty;
             }
         }
 
