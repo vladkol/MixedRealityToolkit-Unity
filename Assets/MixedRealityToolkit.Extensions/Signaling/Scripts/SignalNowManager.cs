@@ -2,6 +2,7 @@ using Microsoft.SignalNow.Client;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
 {
@@ -11,9 +12,30 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
         public SignalNowClient signalNowClient { get; private set; }
         public ISignalNowAuthenticator authenticator;
 
+        public UnityEvent OnConnected = new UnityEvent();
+        public UnityEvent OnDisconnected = new UnityEvent();
+
         void OnEnable()
         {
             signalNowClient = new SignalNowClient(signalServer);
+            signalNowClient.ConnectionChanged += SignalNowClient_ConnectionChanged;
+        }
+
+        private void Start()
+        {
+            OnDisconnected?.Invoke();
+        }
+
+        private void SignalNowClient_ConnectionChanged(SignalNowClient signalNow, bool connected, System.Exception ifErrorWhy)
+        {
+            if(connected)
+            {
+                OnConnected?.Invoke();
+            }
+            else
+            {
+                OnDisconnected?.Invoke();
+            }
         }
 
         private void OnDisable()
