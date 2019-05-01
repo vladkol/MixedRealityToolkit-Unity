@@ -2,24 +2,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
 {
     public class SignalNowPeerElement : MonoBehaviour
     {
         public UnityEngine.UI.Text peerNameText;
-        public SignalNowMessenger messenger;
-        public SignalNowPeer peer;
+        public SignalNowPeerEvent OnSendSignal = new SignalNowPeerEvent();
+
+        public SignalNowPeer peer { get; set; }
 
         private bool peerAssigned = false;
 
         public void SendSignalMessage()
         {
-            if (messenger != null && messenger.signalManager != null && peer != null)
+            if (peer != null)
             {
-                var t = messenger.signalManager.signalNowClient.SendMessage(peer.UserId, false, "MESSAGE",
-                    messenger.textFieldMessageOut.text, true);
-                messenger.textFieldMessageOut.text = string.Empty;
+                OnSendSignal?.Invoke(peer);
             }
         }
 

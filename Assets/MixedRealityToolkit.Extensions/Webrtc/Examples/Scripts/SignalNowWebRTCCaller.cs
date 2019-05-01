@@ -12,20 +12,24 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
     public class SignalNowWebRTCCaller : MonoBehaviour
     {
         private const string kWebRTCMessageType = "MRTKWEBRTC";
+        private readonly TimeSpan maxPeerWatingTime = TimeSpan.FromSeconds(10);
 
         public SignalNowManager signalManager;
         public WebrtcPeerEvents peerEventsInstance;
+        public Webrtc webRTC;
 
         public GameObject peerElementPrefab;
         public Transform peerListParent;
 
         private SignalNowClient client;
         private string peerToCall = string.Empty;
-        private readonly static ConcurrentQueue<Action> RunOnMainThread = new ConcurrentQueue<Action>();
+        private bool peerReady = false;
+        private readonly ConcurrentQueue<Action> RunOnMainThread = new ConcurrentQueue<Action>();
 
         void Start()
         {
-            if(signalManager != null)
+            peerReady = false;
+            if (signalManager != null)
             {
                 client = signalManager.signalNowClient;
             }
@@ -41,6 +45,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
 
             peerEventsInstance.OnPeerReady.AddListener(() =>
             {
+                peerReady = true;
                 peerEventsInstance.AddStream(audioOnly: false);
             });
 
@@ -90,8 +95,42 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
 
         public void MakeCall(SignalNowPeer peer)
         {
-            peerToCall = peer.UserId;
-            peerEventsInstance.CreateOffer();
+            bool restarted = false;
+            if (webRTC.Peer != null && !string.IsNullOrEmpty(peerToCall))
+            {
+                peerEventsInstance.ClosePeerConnection();
+                peerReady = false;
+                peerToCall = string.Empty;
+            }
+            if(webRTC.Peer == null)
+            {
+                webRTC.InitializeAsync();
+                restarted = true;
+            }
+
+            System.Threading.Tasks.Task.Run(() =>
+            {
+                if(restarted && !peerReady)
+                {
+                    DateTime start = DateTime.UtcNow;
+                    while (!peerReady && DateTime.UtcNow - start < maxPeerWatingTime)
+                    {
+                        System.Threading.Tasks.Task.Delay(100).Wait();
+                    }
+                    if(!peerReady)
+                    {
+                        Debug.LogError("Peer is not ready for too long.");
+                        return;
+                    }
+                }
+
+                Debug.Log($"Starting a call with {peer.UserId}");
+                peerToCall = peer.UserId;
+                RunOnMainThread.Enqueue(() =>
+                {
+                    peerEventsInstance.CreateOffer();
+                });
+            });
         }
 
         private void SendMessage(SignalerMessage message)
@@ -152,7 +191,10 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
         {
             if (!connected)
             {
+                peerReady = false;
+                peerEventsInstance.ClosePeerConnection();
                 peerToCall = string.Empty;
+
                 RunOnMainThread.Enqueue(() =>
                 {
                     foreach (var e in peerListParent.GetComponentsInChildren<WebRTCPeerElement>())
@@ -178,7 +220,10 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
                     if (element != null)
                     {
                         element.peer = newPeer;
-                        element.caller = this;
+                        element.OnCall.AddListener((SignalNowPeer peer) =>
+                        {
+                            MakeCall(peer);
+                        });
                     }
                     newObject.transform.SetParent(peerListParent, false);
                 });

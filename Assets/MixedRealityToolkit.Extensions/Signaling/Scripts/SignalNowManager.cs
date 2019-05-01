@@ -13,6 +13,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
         public ISignalNowAuthenticator authenticator;
 
         public UnityEvent OnConnected = new UnityEvent();
+        public UnityEvent OnConnecting = new UnityEvent();
         public UnityEvent OnDisconnected = new UnityEvent();
 
         void OnEnable()
@@ -61,6 +62,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
 
         private void Authenticator_Authenticated(object obj)
         {
+            OnConnecting?.Invoke();
             var t = signalNowClient.Connect(authenticator.userName, authenticator.deviceId,
                 authenticator.companyName, authenticator.teamName, 
                 authenticator.authenticationToken, authenticator.authentcationServiceName);

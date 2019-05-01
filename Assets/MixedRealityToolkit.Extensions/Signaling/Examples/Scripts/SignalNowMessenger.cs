@@ -62,7 +62,15 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
                     if (element != null)
                     {
                         element.peer = newPeer;
-                        element.messenger = this;
+                        element.OnSendSignal.AddListener((SignalNowPeer peer) =>
+                        {
+                            if (textFieldMessageOut != null)
+                            {
+                                var t = signalManager.signalNowClient.SendMessage(peer.UserId, false, "MESSAGE",
+                                    textFieldMessageOut.text, true);
+                                textFieldMessageOut.text = string.Empty;
+                            }
+                        });
                     }
                     newObject.transform.SetParent(peerListParent, false);
                 });
