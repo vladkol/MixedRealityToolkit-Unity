@@ -20,7 +20,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
         public Transform peerListParent;
 
         private SignalNowClient client;
-        private SignalNowPeer peerToCall;
+        private string peerToCall = string.Empty;
         private readonly static ConcurrentQueue<Action> RunOnMainThread = new ConcurrentQueue<Action>();
 
         void Start()
@@ -53,7 +53,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
                     {
                         MessageType = SignalerMessage.WireMessageType.Offer,
                         Data = offer,
-                        TargetId = peerToCall.UserId
+                        TargetId = peerToCall
                     });
                 }
             });
@@ -67,7 +67,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
                     {
                         MessageType = SignalerMessage.WireMessageType.Answer,
                         Data = answer,
-                        TargetId = peerToCall.UserId
+                        TargetId = peerToCall
                     });
                 }
             });
@@ -82,7 +82,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
                         MessageType = SignalerMessage.WireMessageType.Ice,
                         Data = candidate + "|" + sdpMlineindex + "|" + sdpMid,
                         IceDataSeparator = "|",
-                        TargetId = peerToCall.UserId
+                        TargetId = peerToCall
                     });
                 }
             });
@@ -90,7 +90,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
 
         public void MakeCall(SignalNowPeer peer)
         {
-            peerToCall = peer;
+            peerToCall = peer.UserId;
             peerEventsInstance.CreateOffer();
         }
 
@@ -135,8 +135,16 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
         {
             if(messageType == kWebRTCMessageType)
             {
-                SignalerMessage msg = JsonUtility.FromJson<SignalerMessage>(messagePayload);
-                HandleMessage(msg);
+                try
+                {
+                    SignalerMessage msg = JsonUtility.FromJson<SignalerMessage>(messagePayload);
+                    peerToCall = senderId;
+                    HandleMessage(msg);
+                }
+                catch(Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
             }
         }
 
@@ -144,7 +152,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
         {
             if (!connected)
             {
-                peerToCall = null;
+                peerToCall = string.Empty;
                 RunOnMainThread.Enqueue(() =>
                 {
                     foreach (var e in peerListParent.GetComponentsInChildren<WebRTCPeerElement>())
@@ -155,7 +163,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.WebRTC
             }
             else
             {
-                peerToCall = null;
+                peerToCall = string.Empty;
             }
         }
 

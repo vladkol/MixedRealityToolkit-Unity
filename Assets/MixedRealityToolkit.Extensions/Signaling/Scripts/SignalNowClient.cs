@@ -466,9 +466,8 @@ namespace Microsoft.SignalNow.Client
                 return;
             if(connection != null && connection.State == HubConnectionState.Connected)
             {
-#if !UNITY_2018_3_OR_NEWER
                 SendMessageToAll("I_AM_OUTTA_HERE", string.Empty, true).Wait(1000);
-#endif
+
                 disconnecting = true;
                 disconnectingCancel.Cancel();
 #if !UNITY_2018_3_OR_NEWER

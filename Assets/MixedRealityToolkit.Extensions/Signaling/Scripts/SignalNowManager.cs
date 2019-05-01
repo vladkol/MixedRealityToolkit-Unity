@@ -17,7 +17,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
 
         void OnEnable()
         {
-            signalNowClient = new SignalNowClient(signalServer);
+            signalNowClient = new SignalNowClient(signalServer, 60);
             signalNowClient.ConnectionChanged += SignalNowClient_ConnectionChanged;
         }
 
