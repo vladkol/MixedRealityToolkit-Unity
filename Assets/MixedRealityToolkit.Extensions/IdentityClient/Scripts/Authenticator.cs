@@ -91,7 +91,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             justSignedOut = true;
         }
 
-        public async Task SignIn(bool onlySilent = false)
+        public async Task SignIn(bool onlySilent = false, string userNameToSignIn = null)
         {
             if (client == null)
             {
@@ -102,7 +102,23 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
                 }
             }
 
-            userIdInProcess = cache.lastUserId;
+            userIdInProcess = null;
+            if (string.IsNullOrEmpty(userNameToSignIn))
+            {
+                userIdInProcess = cache.lastUserId;
+            }
+            else
+            {
+                var acts = await client.GetAccountsAsync();
+                if(acts != null && acts.Any())
+                {
+                    var act = acts.Where(a => string.Equals(a.Username, userNameToSignIn));
+                    if(act != null && act.Any())
+                    {
+                        userIdInProcess = act.First().HomeAccountId.Identifier;
+                    }
+                }
+            }
 
             if (!string.IsNullOrEmpty(userIdInProcess))
             {
