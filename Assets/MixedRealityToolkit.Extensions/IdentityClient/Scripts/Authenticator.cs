@@ -112,7 +112,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
                 var acts = await client.GetAccountsAsync();
                 if(acts != null && acts.Any())
                 {
-                    var act = acts.Where(a => string.Equals(a.Username, userNameToSignIn));
+                    var act = acts.Where(a => string.Equals(a.Username, userNameToSignIn, StringComparison.InvariantCultureIgnoreCase));
                     if(act != null && act.Any())
                     {
                         userIdInProcess = act.First().HomeAccountId.Identifier;
