@@ -87,6 +87,9 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
 
                 await client.RemoveAsync(account);
                 account = null;
+
+                client = null;
+                InitializeClient();
             }
             justSignedOut = true;
         }
@@ -297,7 +300,7 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             }
         }
 
-        private void Start()
+        private void OnEnable()
         {
             // MSAL always sends the scopes 'openid profile offline_access', remove them from requested scopes
             var alwaysRequested = new string[] { "openid", "profile", "offline_access" };

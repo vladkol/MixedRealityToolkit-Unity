@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using TMPro;
@@ -35,28 +36,35 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
         private string authUrl;
         private string authCode;
         private Sprite originalUserPic;
+        private bool autoSignedIn = false;
 
-        void Awake()
-        {
-            authenticator = GetComponent<Authenticator>();
-            authenticator.DeviceCodeReady += Authenticator_DeviceCodeReady;
-            authenticator.AuthenticationFailed += Authenticator_AuthenticationFailed;
-            authenticator.SignedOut += Authenticator_SignedOut;
-            authenticator.SignedIn += Authenticator_SignedIn;
-
-            originalUserPic = userPic?.sprite;
-            Authenticator_SignedOut(authenticator);
-        }
+        private readonly ConcurrentQueue<Action> RunOnMainThread = new ConcurrentQueue<Action>();
 
         public void SignIn()
         {
-            if(userNameText != null)
+            SignIn(false);
+        }
+        private void SignIn(bool onlySilent)
+        {
+            RunOnMainThread.Enqueue(() =>
             {
-                userNameText.SetText("Signing in...");
-            }
-            SetUXStates(false, false);
+                if (userNameText != null)
+                {
+                    userNameText.SetText("Signing in...");
+                }
+                SetUXStates(false, false);
+            });
 #pragma warning disable 4014
-            authenticator.SignIn();
+            authenticator.SignIn(onlySilent).ContinueWith((t) =>
+            {
+                if(onlySilent && t.IsCompleted && authenticator.account == null)
+                {
+                    RunOnMainThread.Enqueue(() =>
+                    {
+                        Authenticator_SignedOut(authenticator);
+                    });
+                }
+            });
 #pragma warning restore
         }
 
@@ -206,34 +214,26 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             }
         }
 
-        private void Start()
-        {
-            if (autoSignIn)
-            {
-#pragma warning disable 4014
-                authenticator.SignIn(true);
-                SetUXStates(false, false);
-#pragma warning restore
-            }
-        }
-
+        
         private void SetUXStates(bool signInObjectsActive, bool signOutObjectsActive)
         {
-            if (signInObjects != null)
+            RunOnMainThread.Enqueue(() =>
             {
-                foreach (var t in signInObjects)
+                if (signInObjects != null)
                 {
-                    t.gameObject.SetActive(signInObjectsActive);
+                    foreach (var t in signInObjects)
+                    {
+                        t.gameObject.SetActive(signInObjectsActive);
+                    }
                 }
-            }
-            if (signOutObjects != null)
-            {
-                foreach (var t in signOutObjects)
+                if (signOutObjects != null)
                 {
-                    t.gameObject.SetActive(signOutObjectsActive);
+                    foreach (var t in signOutObjects)
+                    {
+                        t.gameObject.SetActive(signOutObjectsActive);
+                    }
                 }
-            }
-
+            });
         }
 
         private static void CopyToClipboard(string text)
@@ -259,5 +259,43 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.IdentityClient
             GUIUtility.systemCopyBuffer = text;
 #endif
         }
+
+        private void Awake()
+        {
+            authenticator = GetComponent<Authenticator>();
+            authenticator.DeviceCodeReady += Authenticator_DeviceCodeReady;
+            authenticator.AuthenticationFailed += Authenticator_AuthenticationFailed;
+            authenticator.SignedOut += Authenticator_SignedOut;
+            authenticator.SignedIn += Authenticator_SignedIn;
+
+            originalUserPic = userPic?.sprite;
+            Authenticator_SignedOut(authenticator);
+        }
+
+        private void OnEnable()
+        {
+            autoSignedIn = false;
+        }
+
+        private void Update()
+        {
+            if (autoSignIn && !autoSignedIn)
+            {
+#pragma warning disable 4014
+                autoSignedIn = true;
+                SignIn(true);
+#pragma warning restore
+            }
+
+            if (!RunOnMainThread.IsEmpty)
+            {
+                Action action;
+                while (RunOnMainThread.TryDequeue(out action))
+                {
+                    action.Invoke();
+                }
+            }
+        }
+
     }
 }

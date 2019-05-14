@@ -66,6 +66,13 @@ namespace Microsoft.MixedReality.Toolkit.Extensions.Signaling
             var t = signalNowClient.Connect(authenticator.userName, authenticator.deviceId,
                 authenticator.companyName, authenticator.teamName, 
                 authenticator.authenticationToken, authenticator.authentcationServiceName);
+            t.ContinueWith((connt) =>
+            {
+                if(connt.IsCompleted && !connt.Result)
+                {
+                    OnDisconnected?.Invoke();
+                }
+            });
         }
     }
 }
